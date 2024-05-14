@@ -1,6 +1,6 @@
 {
   "name": "purescript-cbor-stream",
-  "version": "v1.4.0",
+  "version": "v1.0.0",
   "type": "module",
   "dependencies": {
     "cbor-x": "^1.5.9",
