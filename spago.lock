@@ -4,29 +4,29 @@ workspace:
       path: ./
       dependencies:
         - aff: ">=7.1.0 <8.0.0"
-        - arrays
+        - arrays: ">=7.3.0 <8.0.0"
         - bifunctors: ">=6.0.0 <7.0.0"
         - datetime: ">=6.1.0 <7.0.0"
         - effect: ">=4.0.0 <5.0.0"
-        - either
+        - either: ">=6.1.0 <7.0.0"
         - exceptions: ">=6.0.0 <7.0.0"
         - foldable-traversable: ">=6.0.0 <7.0.0"
         - foreign: ">=7.0.0 <8.0.0"
         - foreign-object: ">=4.1.0 <5.0.0"
-        - js-bigints
-        - js-date
-        - js-maps
+        - js-bigints: ">=2.2.1 <3.0.0"
+        - js-date: ">=8.0.0 <9.0.0"
+        - js-maps: ">=0.1.2 <0.2.0"
         - maybe: ">=6.0.0 <7.0.0"
         - node-buffer: ">=9.0.0 <10.0.0"
         - node-event-emitter: ">=3.0.0 <4.0.0"
-        - node-stream-pipes
+        - node-stream-pipes: ">=1.4.1 <2.0.0"
         - node-streams: ">=9.0.0 <10.0.0"
         - nullable: ">=6.0.0 <7.0.0"
         - ordered-collections: ">=3.2.0 <4.0.0"
         - pipes: ">=8.0.0 <9.0.0"
         - prelude: ">=6.0.1 <7.0.0"
         - record: ">=4.0.0 <5.0.0"
-        - simple-json
+        - simple-json: ">=9.0.0 <10.0.0"
         - tailrec: ">=6.1.0 <7.0.0"
         - transformers: ">=6.0.0 <7.0.0"
         - typelevel-prelude: ">=7.0.0 <8.0.0"
@@ -122,10 +122,7 @@ workspace:
         - unordered-collections
         - unsafe-coerce
         - variant
-  extra_packages:
-    node-stream-pipes:
-      git: https://git.orionkindel.com/orion/purescript-node-stream-pipes
-      ref: 657af14
+  extra_packages: {}
 packages:
   aff:
     type: registry
@@ -634,9 +631,9 @@ packages:
     dependencies:
       - effect
   node-stream-pipes:
-    type: git
-    url: https://git.orionkindel.com/orion/purescript-node-stream-pipes
-    rev: 657af14bb6f461e5def017d8d1ca6142b00891cb
+    type: registry
+    version: 1.4.1
+    integrity: sha256-zrIUGe27rIU1h2GejIJvsfmXu48Ow3huoqYyx0fBhSg=
     dependencies:
       - aff
       - arrays
