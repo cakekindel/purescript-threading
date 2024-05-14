@@ -2,20 +2,21 @@ module Data.CBOR where
 
 import Prelude
 
-import Control.Monad.Error.Class (liftMaybe)
+import Control.Monad.Error.Class (liftMaybe, try)
 import Control.Monad.Except (ExceptT(..), withExcept)
 import Control.Monad.Except.Trans (runExceptT)
 import Data.Array as Array
 import Data.DateTime (DateTime)
-import Data.Either (Either(..))
+import Data.Either (Either(..), isRight)
 import Data.Foldable (class Foldable)
 import Data.FoldableWithIndex (foldlWithIndex)
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
 import Data.Map (Map)
+import Data.Maybe (Maybe(..))
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Traversable (traverse)
-import Foreign (F, Foreign, ForeignError(..), readArray, unsafeReadTagged, unsafeToForeign)
+import Foreign (F, Foreign, ForeignError(..), readArray, readNullOrUndefined, unsafeReadTagged, unsafeToForeign)
 import Foreign.Index (readProp)
 import JS.BigInt (BigInt)
 import JS.Map (Map) as JS
@@ -53,6 +54,13 @@ else instance ReadCBOR a => ReadCBOR (Array a) where
   readCBOR a = do
     raws :: Array Foreign <- readArray a
     traverse readCBOR raws
+else instance ReadCBOR a => ReadCBOR (Maybe a) where
+  readCBOR a = do
+    isNull <- isRight <$> try (readNullOrUndefined a)
+    if isNull then
+      pure Nothing
+    else
+      Just <$> readCBOR @a a
 else instance (ReadCBOR v) => ReadCBOR (JS.Map String v) where
   readCBOR map = do
     map' :: JS.Map String Foreign <- unsafeReadTagged "Map" map
