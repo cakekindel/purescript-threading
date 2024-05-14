@@ -1,7 +1,7 @@
-import { stringify } from "csv-stringify";
+import { EncoderStream } from "cbor-x";
 
-/** @type {(c: import('csv-stringify').Options) => () => import('csv-stringify').Stringifier} */
-export const makeImpl = (c) => () => stringify(c);
+/** @type {(s: import('cbor-x').Options) => () => EncoderStream} */
+export const makeImpl = (c) => () => new EncoderStream({useRecords: false, ...c});
 
-/** @type {(s: import('csv-stringify').Stringifier) => (vals: Array<string>) => () => void} */
-export const writeImpl = (s) => (vals) => () => s.write(vals);
+/** @type {(s: EncoderStream) => (a: unknown) => () => void} */
+export const writeImpl = (s) => (a) => () => s.write(a);

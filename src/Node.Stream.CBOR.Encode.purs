@@ -1,49 +1,25 @@
-module Node.Stream.CSV.Stringify where
+module Node.Stream.CBOR.Encode where
 
 import Prelude
 
-import Data.CSV.Record (class WriteCSVRecord, writeCSVRecord)
-import Data.String.Regex (Regex)
+import Data.CBOR (class WriteCBOR, writeCBOR)
 import Effect (Effect)
-import Foreign (Foreign, unsafeToForeign)
+import Foreign (Foreign)
 import Foreign.Object (Object)
-import Foreign.Object (union) as Object
+import Node.Buffer (Buffer)
 import Node.Stream (Read, Stream, Write)
+import Node.Stream.CBOR.Options (F32, Options, prepareOptions)
 import Node.Stream.Object (Transform) as Object
-import Prim.Row (class Union)
-import Prim.RowList (class RowToList)
+import Prim.Row (class Nub, class Union)
 import Unsafe.Coerce (unsafeCoerce)
 
-data CSVWrite
+data CBOREncode
 
--- | Stream transforming rows of stringified CSV values
--- | to CSV-formatted rows.
--- |
--- | Write rows to the stream using `write`.
--- |
--- | Stringified rows are emitted on the `Readable` end as string
--- | chunks, meaning it can be treated as a `Node.Stream.Readable`
--- | that has had `setEncoding UTF8` invoked on it.
-type CSVStringifier :: Row Type -> Type
-type CSVStringifier r = Stream (read :: Read, write :: Write, csv :: CSVWrite | r)
-
--- | https://csv.js.org/stringify/options/
-type Config r =
-  ( bom :: Boolean
-  , delimiter :: String
-  , record_delimiter :: String
-  , escape :: String
-  , escape_formulas :: Boolean
-  , quote :: String
-  , quoted :: Boolean
-  , quoted_empty :: Boolean
-  , quoted_match :: Regex
-  , quoted_string :: Boolean
-  | r
-  )
+type CBOREncoder :: Row Type -> Type
+type CBOREncoder r = Stream (read :: Read, write :: Write, csv :: CBOREncode | r)
 
 foreign import makeImpl :: forall r. Foreign -> Effect (Stream r)
-foreign import writeImpl :: forall r. Stream r -> Array String -> Effect Unit
+foreign import writeImpl :: forall r. Stream r -> Foreign -> Effect Unit
 
 recordToForeign :: forall r. Record r -> Object Foreign
 recordToForeign = unsafeCoerce
@@ -53,31 +29,21 @@ recordToForeign = unsafeCoerce
 -- |
 -- | Requires an ordered array of column names.
 make
-  :: forall @config @missing @extra
-  . Union config missing (Config extra)
-  => Array String
-  -> { | config }
-  -> Effect (CSVStringifier ())
-make columns =
-  makeImpl
-  <<< unsafeToForeign
-  <<< Object.union (recordToForeign { columns, header: true })
-  <<< recordToForeign
+  :: forall r missing extra minimal minimalExtra
+   . Union r missing (Options extra)
+  => Union r (useFloat32 :: F32) minimal
+  => Nub minimal (useFloat32 :: F32 | minimalExtra)
+  => { | r }
+  -> Effect (CBOREncoder ())
+make = makeImpl <<< prepareOptions @r @missing
 
 -- | Convert the raw stream to a typed ObjectStream
-toObjectStream :: CSVStringifier () -> Object.Transform (Array String) String
+toObjectStream :: CBOREncoder () -> Object.Transform Foreign Buffer
 toObjectStream = unsafeCoerce
 
 -- | Write a record to a CSVStringifier.
 -- |
 -- | The record will be emitted on the `Readable` end
 -- | of the stream as a string chunk.
-write :: forall @r rl a. RowToList r rl => WriteCSVRecord r rl => CSVStringifier a -> { | r } -> Effect Unit
-write s = writeImpl s <<< writeCSVRecord @r @rl
-
--- | Write a record to a CSVStringifier.
--- |
--- | The record will be emitted on the `Readable` end
--- | of the stream as a string chunk.
-writeRaw :: forall a. CSVStringifier a -> Array String -> Effect Unit
-writeRaw = writeImpl
+write :: forall a r. WriteCBOR a => CBOREncoder r -> a -> Effect Unit
+write s a = writeImpl s $ writeCBOR a

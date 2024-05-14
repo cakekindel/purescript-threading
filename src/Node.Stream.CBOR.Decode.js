@@ -1,7 +1,7 @@
-import { Parser } from "csv-parse";
+import { DecoderStream } from "cbor-x";
 
-/** @type {(s: import('csv-parse').Options) => () => Parser} */
-export const makeImpl = (c) => () => new Parser(c);
+/** @type {(s: import('cbor-x').Options) => () => DecoderStream} */
+export const makeImpl = (c) => () => new DecoderStream({useRecords: false, ...c});
 
-/** @type {(s: Parser) => () => Array<string> | null} */
+/** @type {(s: DecoderStream) => () => unknown | null} */
 export const readImpl = (p) => () => p.read();
