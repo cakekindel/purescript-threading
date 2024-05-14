@@ -22,8 +22,8 @@ await writeFile("./spago.yaml", spagonew);
 
 const readme = await readFile("./README.md", "utf8");
 const readmenew = readme.replace(
-  /packages\/purescript-csv-stream\/.+?\//g,
-  `/packages/purescript-csv-stream/${ver}/`,
+  /packages\/purescript-cbor-stream\/.+?\//g,
+  `/packages/purescript-cbor-stream/${ver}/`,
 );
 await writeFile("./README.md", readmenew);
 

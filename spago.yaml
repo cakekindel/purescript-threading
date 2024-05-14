@@ -1,11 +1,11 @@
 package:
-  name: csv-stream
+  name: cbor-stream
   publish:
     version: '2.0.1'
     license: 'GPL-3.0-or-later'
     location:
       githubOwner: 'cakekindel'
-      githubRepo: 'purescript-csv-stream'
+      githubRepo: 'purescript-cbor-stream'
   build:
     strict: true
     pedanticPackages: true
