@@ -19,7 +19,7 @@ workspace:
         - maybe: ">=6.0.0 <7.0.0"
         - node-buffer: ">=9.0.0 <10.0.0"
         - node-event-emitter: ">=3.0.0 <4.0.0"
-        - node-stream-pipes: ">=1.5.0 <2.0.0"
+        - node-stream-pipes: ">=1.6.0 <2.0.0"
         - node-streams: ">=9.0.0 <10.0.0"
         - nullable: ">=6.0.0 <7.0.0"
         - ordered-collections: ">=3.2.0 <4.0.0"
@@ -632,8 +632,8 @@ packages:
       - effect
   node-stream-pipes:
     type: registry
-    version: 1.5.0
-    integrity: sha256-kca0MJ8Pz4tXNpaw7CdysyNAgdbb8yqH1FhOoYbRm5s=
+    version: 1.6.0
+    integrity: sha256-aYwtrkJgTzLEaYZNel2HLISaWecyBzyKoGVpZpIRTJI=
     dependencies:
       - aff
       - arrays
@@ -645,7 +645,6 @@ packages:
       - lists
       - maybe
       - mmorph
-      - newtype
       - node-buffer
       - node-event-emitter
       - node-fs
