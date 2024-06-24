@@ -2,23 +2,17 @@ module Test.Pipes.CBOR where
 
 import Prelude
 
-import Control.Monad.Cont (lift)
-import Control.Monad.Error.Class (liftEither)
 import Control.Monad.Gen (chooseInt)
-import Data.Bifunctor (lmap)
 import Data.DateTime (DateTime)
 import Data.List ((:))
 import Data.List as List
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Newtype (wrap)
 import Data.PreciseDateTime (fromRFC3339String, toDateTimeLossy)
-import Data.Traversable (traverse)
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
-import Effect.Aff (delay)
 import Effect.CBOR as CBOR
 import Effect.Class (liftEffect)
-import Effect.Exception (error)
 import Node.Buffer (Buffer)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
@@ -28,7 +22,7 @@ import Pipes.Async (debug, (>-/->))
 import Pipes.CBOR as Pipes.CBOR
 import Pipes.Collect as Pipes.Collect
 import Pipes.Node.Stream as Pipes.Stream
-import Pipes.Prelude (mapM, toListM) as Pipes
+import Pipes.Prelude (toListM) as Pipes
 import Test.QuickCheck.Gen (randomSample')
 import Test.Spec (Spec, before, describe, it)
 import Test.Spec.Assertions (shouldEqual)
@@ -67,7 +61,6 @@ spec =
         rows <- Pipes.toListM
           $ (yield (Just buf) *> yield Nothing)
               >-/-> debug "cbor" Pipes.CBOR.decode
-              >-> Pipes.CBOR.decodeError
 
         rows `shouldEqual` ((Just exp) : Nothing : List.Nil)
       before
@@ -87,7 +80,6 @@ spec =
             Pipes.Collect.toArray
               $ Pipes.Stream.withEOS (yield bytes)
                   >-/-> Pipes.CBOR.decode @(Array {id :: Int})
-                  >-> Pipes.CBOR.decodeError
                   >-> Pipes.Stream.unEOS
 
           rows `shouldEqual` [(\id -> { id }) <$> nums]

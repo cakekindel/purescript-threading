@@ -7,21 +7,15 @@ import Control.Monad.Except (runExcept)
 import Control.Monad.Rec.Class (class MonadRec)
 import Data.Bifunctor (lmap)
 import Data.CBOR (class ReadCBOR, class WriteCBOR, readCBOR, writeCBOR)
-import Data.Either (Either)
 import Data.Maybe (Maybe)
-import Data.Profunctor as Pro
 import Data.Traversable (traverse)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Exception (Error, error)
-import Foreign (Foreign, MultipleErrors)
 import Node.Buffer (Buffer)
 import Node.Stream.CBOR.Decode as CBOR.Decode
 import Node.Stream.CBOR.Encode as CBOR.Encode
-import Pipes.Async (AsyncPipe)
-import Pipes.Core (Pipe)
-import Pipes.Node.Stream (TransformContext)
+import Pipes.Async (AsyncPipe, bindIO, mapIO)
 import Pipes.Node.Stream as Pipes.Stream
-import Pipes.Prelude as Pipe
 
 -- | Transforms buffer chunks of a CBOR file to parsed values
 -- | of type `a`.
@@ -31,14 +25,12 @@ decode
   => MonadAff m
   => MonadThrow Error m
   => ReadCBOR a
-  => AsyncPipe (TransformContext Buffer Foreign) m (Maybe Buffer) (Maybe (Either MultipleErrors a))
+  => AsyncPipe (Maybe Buffer) (Maybe a) m Unit
 decode = do
   let
-    parser = Pipes.Stream.fromTransform $ CBOR.Decode.toObjectStream <$> CBOR.Decode.make {}
-  Pro.rmap (map (runExcept <<< readCBOR @a)) parser
-
-decodeError :: forall m a r. MonadThrow Error m => Pipe (Maybe (Either MultipleErrors a)) (Maybe a) m r
-decodeError = Pipe.mapM (traverse liftEither <<< map (lmap $ error <<< show))
+    decoder = Pipes.Stream.fromTransformEffect $ CBOR.Decode.toObjectStream <$> CBOR.Decode.make {}
+    parse = liftEither <<< lmap (error <<< show) <<< runExcept <<< readCBOR @a
+  bindIO pure (traverse parse) decoder
 
 -- | Encode purescript values as CBOR buffers
 encode
@@ -47,9 +39,9 @@ encode
   => MonadThrow Error m
   => MonadRec m
   => WriteCBOR a
-  => AsyncPipe (TransformContext Foreign Buffer) m (Maybe a) (Maybe Buffer)
+  => AsyncPipe (Maybe a) (Maybe Buffer) m Unit
 encode =
   let
-    p = Pipes.Stream.fromTransform $ CBOR.Encode.toObjectStream <$> CBOR.Encode.make {}
+    p = Pipes.Stream.fromTransformEffect $ CBOR.Encode.toObjectStream <$> CBOR.Encode.make {}
   in
-    Pro.lcmap (map writeCBOR) p
+    mapIO (map writeCBOR) identity p
