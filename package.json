@@ -1,12 +1,10 @@
 {
-  "name": "purescript-cbor-stream",
-  "version": "v1.3.0",
+  "name": "purescript-threading",
+  "version": "v0.0.1",
   "type": "module",
-  "dependencies": {
-    "cbor-x": "^1.5.9",
-    "decimal.js": "^10.4.3"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "bun": "1.1.18"
   }
 }

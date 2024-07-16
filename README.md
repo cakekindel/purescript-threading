@@ -1,28 +1,16 @@
-# purescript-cbor-stream
+# purescript-threading
+Concurrency primitives inspired by python's multithreading and rust, allowing for
+predictable concurrency with `Aff`
 
-Type-safe bindings for the streaming API of `cbor-x`
+## Use Cases
+* Create a background worker thread
+* Communicate between threads (`Threading.Channel`)
+* Limit access to a resource _(eg. a database connection pool, file handle)_ to 1 concurrent actor (`Threading.RWLock`, `Threading.Mutex`)
+* Coordinate concurrent threads, waiting for some common goal to be reached before continuing (`Threading.Barrier`)
+* Create a pool of concurrent "threads" that can pull work from a queue, with graceful exiting and error handling
+* Remotely kill a thread, or non-blockingly ask if it has exited
 
 ## Installing
 ```bash
-spago install cbor-stream
-{bun|yarn|npm|pnpm} install cbor-x
-```
-
-## Examples
-
-### Convert a cbor-encoded dataset to csv
-```purescript
-import Pipes.Node.Stream as Pipes.Stream
-import Pipes.Node.FS as Pipes.FS
-import Pipes.Node.Buffer as Pipes.Buffer
-import Pipes.CBOR as Pipes.CBOR
-import Pipes.CSV as Pipes.CSV
-import Pipes.Prelude ((>->))
-import Pipes.Prelude as Pipes
-
-Pipes.runEffect
-  $ Pipes.FS.read "foo.bin"
-    >-> Pipes.CBOR.decode @{id :: Int, name :: String}
-    >-> Pipes.CSV.stringify
-    >-> Pipes.FS.write "foo.csv"
+spago install threading
 ```
